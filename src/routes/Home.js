@@ -2,11 +2,12 @@ import { dbService } from "fbase";
 import { addDoc, collection, getDocs, query } from "firebase/firestore";
 import React, { useState, useEffect } from "react";
 
-const Home = () => {
+const Home = ({userObj}) => {
   const [tweet, setTweet] = useState("");
   const [tweets, setTweets] = useState([]);
 
   const getTweets = async () => {
+    console.log(userObj)
     const q = query(collection(dbService, "tweets"));
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
@@ -25,8 +26,9 @@ const Home = () => {
     e.preventDefault();
     try {
       const docRef = await addDoc(collection(dbService, "tweets"), {
-        tweet,
+        text: tweet,
         createdAt: Date.now(),
+        creatorId: userObj.uid,
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (error) {
