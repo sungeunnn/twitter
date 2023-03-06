@@ -1,25 +1,20 @@
 import { dbService } from "fbase";
-import { addDoc, collection, getDocs, query } from "firebase/firestore";
+import { addDoc, collection, query, onSnapshot, orderBy } from "firebase/firestore";
 import React, { useState, useEffect } from "react";
 
-const Home = ({userObj}) => {
+const Home = ({ userObj }) => {
   const [tweet, setTweet] = useState("");
   const [tweets, setTweets] = useState([]);
 
-  const getTweets = async () => {
-    console.log(userObj)
-    const q = query(collection(dbService, "tweets"));
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-      const tweetObj = {
-        ...doc.data(),
-        id: doc.id,
-      };
-      setTweets((prev) => [tweetObj, ...prev]);
-    });
-  };
   useEffect(() => {
-    getTweets();
+    const q = query(collection(dbService, "tweets"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+      const tweetArr = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setTweets(tweetArr);
+    });
   }, []);
 
   const onSubmit = async (e) => {
@@ -52,7 +47,7 @@ const Home = ({userObj}) => {
       <div>
         {tweets.map((tw) => (
           <div key={tw.id}>
-            <h4>{tw.tweet}</h4>
+            <h4>{tw.text}</h4>
           </div>
         ))}
       </div>
