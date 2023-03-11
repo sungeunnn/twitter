@@ -1,6 +1,7 @@
 import { dbService } from "fbase";
 import { addDoc, collection, query, onSnapshot, orderBy } from "firebase/firestore";
 import React, { useState, useEffect } from "react";
+import Tweet from "./../components/Tweet";
 
 const Home = ({ userObj }) => {
   const [tweet, setTweet] = useState("");
@@ -46,9 +47,7 @@ const Home = ({ userObj }) => {
       </form>
       <div>
         {tweets.map((tw) => (
-          <div key={tw.id}>
-            <h4>{tw.text}</h4>
-          </div>
+          <Tweet key={tw.id} tweetObj={tw} isOwner={tw.creatorId===userObj.uid}/>
         ))}
       </div>
     </div>
