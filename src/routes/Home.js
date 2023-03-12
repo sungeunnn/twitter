@@ -1,5 +1,7 @@
-import { dbService } from "fbase";
-import { addDoc, collection, query, onSnapshot, orderBy } from "firebase/firestore";
+import { dbService, storageService } from "fbase";
+import { v4 as uuidv4 } from "uuid";
+import { ref, uploadString } from "@firebase/storage";
+import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
 import React, { useState, useEffect } from "react";
 import Tweet from "./../components/Tweet";
 
@@ -21,7 +23,10 @@ const Home = ({ userObj }) => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    try {
+    const fileRef = ref(storageService, `${userObj.uid}/${uuidv4()}`);
+    const response = await uploadString(fileRef, attachment, "data_url");
+    console.log(response);
+    /* try {
       await addDoc(collection(dbService, "tweets"), {
         text: tweet,
         createdAt: Date.now(),
@@ -30,7 +35,7 @@ const Home = ({ userObj }) => {
     } catch (error) {
       console.error("Error adding document: ", error);
     }
-    setTweet("");
+    setTweet(""); */
   };
 
   const onChange = (e) => {
@@ -44,9 +49,9 @@ const Home = ({ userObj }) => {
     const {
       target: { files },
     } = e;
-    const theFile = files[0]; 
-    const reader = new FileReader(); 
-    reader.readAsDataURL(theFile); 
+    const theFile = files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(theFile);
     reader.onloadend = (finishedEvent) => {
       const {
         currentTarget: { result },
