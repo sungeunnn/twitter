@@ -1,17 +1,27 @@
+/* eslint-disable jsx-a11y/alt-text */
 import React, { useState } from "react";
 import { dbService } from "fbase";
+import { deleteObject, ref } from "@firebase/storage";
 import { doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { storageService } from "../fbase";
 
 const Tweet = ({ tweetObj, isOwner }) => {
   const TweetTextRef = doc(dbService, "tweets", `${tweetObj.id}`);
 
   const [editing, setEditing] = useState(false);
   const [newTweet, setNewTweet] = useState(tweetObj.text);
-
+  const urlRef = ref(storageService, tweetObj.attachmentUrl);
   const onDeleteClick = async () => {
     const ok = window.confirm("트윗을 지우겠습니까?");
     if (ok) {
-      await deleteDoc(TweetTextRef);
+      try {
+        await deleteDoc(TweetTextRef);
+        if (tweetObj.attachmentUrl !== "") {
+          await deleteObject(urlRef);
+        }
+      } catch (error) {
+        window.alert("트윗을 삭제하는 데 실패했습니다!");
+      }
     }
   };
 
