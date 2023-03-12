@@ -6,6 +6,7 @@ import Tweet from "./../components/Tweet";
 const Home = ({ userObj }) => {
   const [tweet, setTweet] = useState("");
   const [tweets, setTweets] = useState([]);
+  const [attachment, setAttachment] = useState();
 
   useEffect(() => {
     const q = query(collection(dbService, "tweets"), orderBy("createdAt", "desc"));
@@ -43,20 +44,29 @@ const Home = ({ userObj }) => {
     const {
       target: { files },
     } = e;
-    const theFile = files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(theFile);
+    const theFile = files[0]; 
+    const reader = new FileReader(); 
+    reader.readAsDataURL(theFile); 
     reader.onloadend = (finishedEvent) => {
-      console.log(finishedEvent)
-    }
+      const {
+        currentTarget: { result },
+      } = finishedEvent;
+      setAttachment(result);
+    };
   };
-
+  const onClearAttachment = () => setAttachment(null);
   return (
     <div>
       <form onSubmit={onSubmit}>
         <input value={tweet} onChange={onChange} type="text" placeholder="What's on your mind?" maxLength={120} />
         <input type="file" accept="image/*" onChange={onFileChange} />
         <input type="submit" value="Tweet" />
+        {attachment && (
+          <div>
+            <img src={attachment} alt="Tweet 추가한 이미지" width="50px" height="50px" />
+            <button onClick={onClearAttachment}>Clear</button>
+          </div>
+        )}
       </form>
       <div>
         {tweets.map((tw) => (
